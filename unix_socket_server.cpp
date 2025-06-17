@@ -3,6 +3,7 @@
 #include <sys/un.h>
 #include <unistd.h>
 #include <cstring>
+#define SOCKET_PATH "/tmp/mysocket"
 
 
 int main(){
@@ -35,7 +36,7 @@ int main(){
     addr.sun_family = AF_UNIX;
     
     // Copies string "/tmp/my_unix_socket" to the addr.sun_path field
-    strcpy(addr.sun_path, "/tmp/my_unix_socket");
+    strcpy(addr.sun_path, SOCKET_PATH);
     
     // Binding socket
     if (bind(sockfd, (struct sockaddr *)&addr, sizeof(struct sockaddr_un)) == -1) {
@@ -51,7 +52,7 @@ int main(){
         return 1;
     }
     
-    std::cout << "Server listening on " << addr.sun_path << std::endl;
+    std::cout << "Server listening on " << SOCKET_PATH << std::endl;
     
     client_fd = accept(sockfd, NULL, NULL);
     if (client_fd == -1) {
@@ -72,7 +73,7 @@ int main(){
     buffer[bytes_read] = '\0';  // Null terminate the string
     std::cout << "Received message: " << buffer << std::endl;
 
-       // Send a response to the client
+    // Send a response to the client
     const char* response = "Message received";
     if (write(client_fd, response, strlen(response)) == -1) {
         std::cerr << "Write failed!" << std::endl;
@@ -81,10 +82,10 @@ int main(){
         return 1;
     }
 
-       // Clean up
+    // Clean up
     close(client_fd);
     close(sockfd);
-    unlink(addr.sun_path);
+    unlink(SOCKET_PATH);
     
 }
     
